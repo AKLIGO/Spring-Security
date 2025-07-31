@@ -13,7 +13,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import static org.springframework.security.config.Customizer.withDefaults;
-
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.userdetails.UserDetailsService;
+// import org.springframework.security.core.userdetails.UsernameNotFoundException;
+// import com.continuer.Signup_Login.Entites.Users;
+import com.continuer.Signup_Login.Repository.UsersRepository;
+import com.continuer.Signup_Login.Services.MyUserDetailsService;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 @Configuration
 @EnableWebSecurity
 public class ConfigurationSecurityApplication {
@@ -50,4 +57,23 @@ public class ConfigurationSecurityApplication {
 
         return http.build();
     }
+
+    //Authenfication
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+    @Bean
+    public UserDetailsService userDetailsService(UsersRepository usersRepository) {
+        return new MyUserDetailsService(usersRepository);
+        };
+
+        @Bean
+public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+    authProvider.setUserDetailsService(userDetailsService);
+    authProvider.setPasswordEncoder(passwordEncoder);
+    return authProvider;
 }
+    }
+

@@ -5,14 +5,18 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
 import com.continuer.Signup_Login.Repository.UsersRepository;
+
+import lombok.AllArgsConstructor;
+// import lombok.NoArgsConstructor;
+
 import com.continuer.Signup_Login.Entites.Users;
 
-
+// @NoArgsConstructor
+@AllArgsConstructor
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UsersRepository userRepository; 
+        private final UsersRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

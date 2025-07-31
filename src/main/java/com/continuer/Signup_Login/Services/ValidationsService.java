@@ -50,7 +50,7 @@ public class ValidationsService {
             // sendValidationEmail(user, code);
     }
     public Validation lireEnFctionDuCode(String code){
-        return this.validationRepository.findByCode(code);
+        return this.validationRepository.findByCode(code).orElseThrow(()-> new RuntimeException("votre code est valide"));
     }
     
 }
