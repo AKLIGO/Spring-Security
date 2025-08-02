@@ -12,7 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-
+import com.continuer.Signup_Login.configuration.JwtService;
 // import org.springframework.http.HttpStatus;
 
 
@@ -28,6 +28,8 @@ public class UsersControllers {
     private UsersService usersService;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtService jwtService;
 
     @PostMapping("/register")
     public Users registerUser(@RequestBody Users users) {
@@ -41,17 +43,21 @@ public class UsersControllers {
         this.usersService.activation(activation);
     }
    @PostMapping("/login")
-public Map<String, String> loginUser(@RequestBody AuthentificationDto authenticationDto) {
-    try {
-        Authentication authenticates = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(authenticationDto.username(), authenticationDto.password())
-        );
+    public Map<String, String> loginUser(@RequestBody AuthentificationDto authenticationDto) {
+        try {
+            Authentication authenticates = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(authenticationDto.username(), authenticationDto.password())
+            );
 
-        log.info("L'utilisateur a été authentifié avec succès.");
+        if(authenticates.isAuthenticated()){
+            return this.jwtService.generate(authenticationDto.username());
+
+        }
         return Map.of("message", "Connexion réussie");
     } catch (AuthenticationException e) {
         log.warn("Échec de l'authentification : " + e.getMessage());
         return Map.of("message", "Échec de la connexion");
     }
+
 }
 }
