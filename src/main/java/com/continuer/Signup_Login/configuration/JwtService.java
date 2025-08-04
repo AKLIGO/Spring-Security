@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +14,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import com.continuer.Signup_Login.Repository.UsersRepository;
 import com.continuer.Signup_Login.Entites.Users;
-import com.continuer.Signup_Login.Services.MyUserDetailsService;
 
+import com.continuer.Signup_Login.Entites.Jwt;
+import com.continuer.Signup_Login.Repository.JwtRepository;
 import lombok.AllArgsConstructor;
 
 import java.security.Key;
@@ -23,9 +24,9 @@ import java.security.Key;
 @AllArgsConstructor
 @Service
 public class JwtService {
-    private MyUserDetailsService myUserDetailsService;
+    // private MyUserDetailsService myUserDetailsService;
     private UsersRepository usersRepository;
-    
+    private JwtRepository jwtRepository;
     // Clé secrète pour signer le token (idéalement à mettre dans application.properties)
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     
@@ -58,6 +59,15 @@ public class JwtService {
         tokenMap.put("token", token);
         tokenMap.put("expiresAt", String.valueOf(expirationDate.getTime()));
         tokenMap.put("username", user.getUsername());
+
+       final Jwt jwt=Jwt
+            .builder()
+            .valeur(token)
+            .desactive(false)
+            .expire(false)
+            .user(user)
+            .build();
+        this.jwtRepository.save(jwt);
         
         return tokenMap;
     }
