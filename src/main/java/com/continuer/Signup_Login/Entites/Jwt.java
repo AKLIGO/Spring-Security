@@ -23,4 +23,6 @@ public class Jwt extends BaseEntity{
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE})
     @JoinColumn(name = "user_id")
     private Users user;
+    public Jwt() {
+    }
 }

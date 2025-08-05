@@ -15,6 +15,7 @@ import com.continuer.Signup_Login.Services.MyUserDetailsService;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -35,8 +36,11 @@ public class ConfigurationSecurityApplication {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .logout(logout -> logout.disable())
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/public/**", "/auth/**", "/login", "/register", "/activation").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/logout").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/logout").authenticated()
                     .anyRequest().authenticated()
             )
             // Configuration stateless (sans session)

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMethod;
 import com.continuer.Signup_Login.dtos.AuthentificationDto;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -60,4 +61,10 @@ public class UsersControllers {
     }
 
 }
+
+    @RequestMapping(value = "/logout", method = {RequestMethod.POST, RequestMethod.GET})
+    public Map<String, String> logoutUser() {
+        this.jwtService.logout();
+        return Map.of("message", "Déconnexion réussie");
+    }
 }

@@ -11,13 +11,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
+import com.continuer.Signup_Login.Entites.Jwt;
 import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    Jwt jwtEntity;
     private final com.continuer.Signup_Login.Services.MyUserDetailsService userDetailsService;
 
     public JwtAuthenticationFilter(JwtService jwtService, 
@@ -46,6 +47,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         
         try {
+            // ✅ Recherche du token JWT dans la base de données
+            jwtEntity = jwtService.tokenByValue(jwt);
+            
+            // Vérification si le token est désactivé ou expiré
+            if (jwtEntity == null || jwtEntity.isDesactive() || jwtEntity.isExpire()) {
+                // Si le token est désactivé ou expiré, on nettoie le contexte de sécurité
+                SecurityContextHolder.clearContext();
+                filterChain.doFilter(request, response);
+                return;
+            }
+            
             // Extraction du nom d'utilisateur à partir du token
             username = jwtService.extractUsername(jwt);
             
@@ -71,7 +83,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // En cas d'erreur lors de la validation du token, on continue sans authentification
+            // En cas d'erreur lors de la validation du token, on nettoie le contexte de sécurité
+            SecurityContextHolder.clearContext();
             logger.error("Impossible de valider le token JWT", e);
         }
         

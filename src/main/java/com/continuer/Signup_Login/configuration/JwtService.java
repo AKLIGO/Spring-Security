@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -14,13 +15,15 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import com.continuer.Signup_Login.Repository.UsersRepository;
 import com.continuer.Signup_Login.Entites.Users;
+import org.springframework.security.core.Authentication;
 
 import com.continuer.Signup_Login.Entites.Jwt;
 import com.continuer.Signup_Login.Repository.JwtRepository;
 import lombok.AllArgsConstructor;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.security.Key;
 
+@Transactional
 @AllArgsConstructor
 @Service
 public class JwtService {
@@ -89,7 +92,14 @@ public class JwtService {
      */
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        Jwt jwtEntity = tokenByValue(token);
+        
+        // Vérifier que le username Users user = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();du token correspond à celui de l'utilisateur associé au token en base
+        return (username.equals(userDetails.getUsername()) && 
+                username.equals(jwtEntity.getUser().getUsername()) && 
+                !isTokenExpired(token) && 
+                !jwtEntity.isDesactive() && 
+                !jwtEntity.isExpire());
     }
     
     /**
@@ -122,4 +132,30 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+   public Jwt tokenByValue(String valeur){
+    return this.jwtRepository.findByValeur(valeur)
+        .orElseThrow(() -> new RuntimeException("Token non trouvé"));
+};
+public void logout() {
+   Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null) {
+        String username = auth.getName(); // Récupère le nom d'utilisateur sans cast
+        // Désactiver tous les tokens de l'utilisateur
+        disableTokens(username);
+        SecurityContextHolder.clearContext();
+    }
+}
+
+/**
+ * Désactive tous les tokens d'un utilisateur spécifique
+ * @param username Nom d'utilisateur
+ */
+public void disableTokens(String username) {
+    this.jwtRepository.findUserByUsername(username)
+        .forEach(token -> {
+            token.setDesactive(true);
+            token.setExpire(true);
+            this.jwtRepository.save(token);
+        });
+}
 }
