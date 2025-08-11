@@ -38,7 +38,8 @@ public class ConfigurationSecurityApplication {
             .csrf(csrf -> csrf.disable())
             .logout(logout -> logout.disable())
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/public/**", "/auth/**", "/login", "/register", "/activation").permitAll()
+                    .requestMatchers("/public/**", "/auth/**", "/login", "/register", "/activation", "/refresh-Token").permitAll()
+
                     .requestMatchers(HttpMethod.POST, "/logout").authenticated()
                     .requestMatchers(HttpMethod.GET, "/logout").authenticated()
                     .anyRequest().authenticated()

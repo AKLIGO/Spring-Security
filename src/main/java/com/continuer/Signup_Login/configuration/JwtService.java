@@ -18,15 +18,21 @@ import com.continuer.Signup_Login.Entites.Users;
 import org.springframework.security.core.Authentication;
 
 import com.continuer.Signup_Login.Entites.Jwt;
+import com.continuer.Signup_Login.Entites.RefreshToken;
 import com.continuer.Signup_Login.Repository.JwtRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import java.security.Key;
+import java.time.Instant;
+import java.util.UUID;
+
+
 
 @Transactional
 @AllArgsConstructor
 @Service
 public class JwtService {
+    private static final String REFRESH = "REFRESH";
     // private MyUserDetailsService myUserDetailsService;
     private UsersRepository usersRepository;
     private JwtRepository jwtRepository;
@@ -34,7 +40,7 @@ public class JwtService {
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     
     // Durée de validité du token (24 heures)
-    private static final long EXPIRATION_TIME = 86400000; // 24 heures en millisecondes
+    private static final long EXPIRATION_TIME =  1 * 60 * 10000; // 1 minutes
     
     /**
      * Génère un token JWT pour l'utilisateur spécifié
@@ -47,6 +53,17 @@ public class JwtService {
         
         // Date d'expiration du token
         Date expirationDate = new Date(System.currentTimeMillis() + EXPIRATION_TIME);
+
+        // refreh token
+        RefreshToken refreshToken = RefreshToken.builder()
+                    
+                    .expire(false)
+                    .valeur(UUID.randomUUID().toString())
+                    .creation(Instant.now())
+                    .refreshTokenDateExpiration(
+                                 Instant.now().plusMillis(30 * 60 * 1000)
+                            )
+                    .build();
         
         // Création du token
         String token = Jwts.builder()
@@ -69,9 +86,11 @@ public class JwtService {
             .desactive(false)
             .expire(false)
             .user(user)
+            .refreshToken(refreshToken)
+
             .build();
         this.jwtRepository.save(jwt);
-        
+        tokenMap.put("refreshToken", refreshToken.getValeur());
         return tokenMap;
     }
     
@@ -158,4 +177,18 @@ public void disableTokens(String username) {
             this.jwtRepository.save(token);
         });
 }
+public Map<String,String> refreshToken(Map<String,String> refresTokenRequest){
+
+  final Jwt jwt=this.jwtRepository.findByRefreshToken(refresTokenRequest.get(REFRESH)).orElseThrow(()->new  RuntimeException("token invalid"));
+  if (jwt.getRefreshToken().isExpire() || jwt.getRefreshToken().getRefreshTokenDateExpiration().isBefore(Instant.now())) {
+    throw new RuntimeException("TOKEN_INVALIDE");
+  }
+  Map<String,String> tokens=this.generate(jwt.getUser().getUsername());
+  this.disableTokens(jwt.getUser().getUsername());
+ return tokens;
+
+
+
+}
+
 }

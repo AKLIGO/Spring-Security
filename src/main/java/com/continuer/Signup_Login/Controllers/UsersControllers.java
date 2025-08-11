@@ -43,6 +43,13 @@ public class UsersControllers {
     public void activateUser(@RequestBody Map<String,String> activation) {
         this.usersService.activation(activation);
     }
+
+     @PostMapping("/refresh-Token")
+    public @ResponseBody Map<String, String> refreshToken(@RequestBody Map<String,String> refresTokenRequest) {
+        return this.jwtService.refreshToken(refresTokenRequest);
+    }
+
+
    @PostMapping("/login")
     public Map<String, String> loginUser(@RequestBody AuthentificationDto authenticationDto) {
         try {

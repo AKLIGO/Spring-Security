@@ -23,6 +23,11 @@ public interface JwtRepository extends JpaRepository<Jwt, Long> {
    @Query("select j from Jwt j where j.user.username=:username")
    Stream<Jwt> findUserByUsername(String username);
 
+   @Query("select j from Jwt j where j.refreshToken.valeur=:valeur")
+   Optional<Jwt> findByRefreshToken(String valeur);
+
+
+
 
 
 
