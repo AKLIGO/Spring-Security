@@ -39,7 +39,7 @@ public class ConfigurationSecurityApplication {
             .logout(logout -> logout.disable())
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/public/**", "/auth/**", "/login", "/register", "/activation", "/refresh-Token").permitAll()
-
+                    .requestMatchers(HttpMethod.GET,"/list_Avis").hasAnyRole("PROPRIETAIRE","ADMINISTRATEUR")
                     .requestMatchers(HttpMethod.POST, "/logout").authenticated()
                     .requestMatchers(HttpMethod.GET, "/logout").authenticated()
                     .anyRequest().authenticated()

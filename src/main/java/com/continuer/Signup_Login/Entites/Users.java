@@ -2,6 +2,7 @@ package com.continuer.Signup_Login.Entites;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,14 +29,20 @@ public class Users extends BaseEntity implements UserDetails {
     private String password;
 
     private boolean actif = false;
-
+    
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+     @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
     // === Implémentation des méthodes de UserDetails ===
 
     @Override

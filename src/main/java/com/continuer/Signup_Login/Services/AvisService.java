@@ -4,6 +4,9 @@ import com.continuer.Signup_Login.Entites.Avis;
 import com.continuer.Signup_Login.Repository.AvisRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.continuer.Signup_Login.Entites.Users;
 import com.continuer.Signup_Login.Repository.UsersRepository;
@@ -36,5 +39,13 @@ public class AvisService {
 
     public Avis getAvis(Long id){
         return avisRepository.findById(id).orElse(null);
+    }
+
+    public List<Avis> listAvis() {
+        
+        return avisRepository.findAll();
+    }
+    public void deleteAvis(Long id) {
+        avisRepository.deleteById(id);
     }
 }
