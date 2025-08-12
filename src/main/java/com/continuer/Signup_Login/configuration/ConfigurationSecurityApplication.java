@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import com.continuer.Signup_Login.Repository.UsersRepository;
 import com.continuer.Signup_Login.Services.MyUserDetailsService;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class ConfigurationSecurityApplication {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -39,7 +41,7 @@ public class ConfigurationSecurityApplication {
             .logout(logout -> logout.disable())
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/public/**", "/auth/**", "/login", "/register", "/activation", "/refresh-Token").permitAll()
-                    .requestMatchers(HttpMethod.GET,"/list_Avis").hasAnyRole("PROPRIETAIRE","ADMINISTRATEUR")
+                    .requestMatchers(HttpMethod.GET,"/list_Avis").hasAnyAuthority("ROLE_PROPRIETAIRE","ROLE_ADMINISTRATEUR")
                     .requestMatchers(HttpMethod.POST, "/logout").authenticated()
                     .requestMatchers(HttpMethod.GET, "/logout").authenticated()
                     .anyRequest().authenticated()

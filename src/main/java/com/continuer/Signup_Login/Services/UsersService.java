@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.continuer.Signup_Login.Enumeraterur.TypeDeRoles;
 import com.continuer.Signup_Login.FichierDeValidation.Validation;
 
+import java.util.List;
 import java.util.Map;
 import java.time.Instant;
 
@@ -69,6 +70,11 @@ public class UsersService {
        Users userActiver= this.usersRepository.findById(validation.getUser().getId()).orElseThrow(()-> new RuntimeException("utilisateur inconnu"));
        userActiver.setActif(true);
        this.usersRepository.save(userActiver);
+
+    }
+
+    public List<Users> listUsers() {
+        return this.usersRepository.findAll();
 
     }
 }   
